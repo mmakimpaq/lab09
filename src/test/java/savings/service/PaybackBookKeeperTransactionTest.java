@@ -30,6 +30,7 @@ import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import common.db.LocalDatabaseConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 import savings.model.AccountIncome;
 import savings.model.Objective;
 import savings.model.Purchase;
@@ -53,6 +54,11 @@ public class PaybackBookKeeperTransactionTest {
 
         @Autowired
         PaybackRepository paybackRepository;
+
+        @Bean(name = "accountRepositoryMock")
+        public AccountRepository accountRepository(){
+            return accountRepository;
+        }
 
         @Bean(name = "paybackRepositoryMock")
         public PaybackRepository paybackRepository() {
@@ -80,6 +86,7 @@ public class PaybackBookKeeperTransactionTest {
     PaybackBookKeeper bookKeeper;
 
     @Test
+    @Transactional
     public void shouldRegisterPaybackInTransaction() throws Exception {
         doThrow(new RuntimeException("DB error!"))
                 .when(paybackRepository).save(any(AccountIncome.class), any(Purchase.class));
