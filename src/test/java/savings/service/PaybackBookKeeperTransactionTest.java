@@ -34,8 +34,10 @@ import savings.model.AccountIncome;
 import savings.model.Objective;
 import savings.model.Purchase;
 import savings.repository.AccountRepository;
+import savings.repository.MerchantRepository;
 import savings.repository.PaybackRepository;
 import savings.repository.impl.RepositoryConfiguration;
+import savings.service.impl.PaybackBookKeeperImpl;
 import savings.service.impl.ServiceConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -46,9 +48,23 @@ public class PaybackBookKeeperTransactionTest {
     @Import({LocalDatabaseConfiguration.class, RepositoryConfiguration.class, ServiceConfiguration.class })
     public static class Config {
 
+        @Autowired
+        AccountRepository accountRepository;
+
+        @Autowired
+        PaybackRepository paybackRepository;
+
         @Bean(name = "paybackRepositoryMock")
         public PaybackRepository paybackRepository() {
             return Mockito.mock(PaybackRepository.class);
+        }
+
+        @Bean(name = "paybackBookKeeperMock")
+        public PaybackBookKeeper paybackBookKeeper() {
+            return new PaybackBookKeeperImpl(
+                    accountRepository,
+                    mock(MerchantRepository.class),
+                    paybackRepository);
         }
     }
 
@@ -60,6 +76,7 @@ public class PaybackBookKeeperTransactionTest {
     PaybackRepository paybackRepository;
 
     @Autowired
+    @Qualifier("paybackBookKeeperMock")
     PaybackBookKeeper bookKeeper;
 
     @Test
