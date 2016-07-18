@@ -12,14 +12,21 @@ import static savings.PaybackFixture.creditCardNumber;
 import static savings.PaybackFixture.purchase;
 
 import org.joda.money.Money;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.*;
+import org.springframework.core.annotation.Order;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import common.db.LocalDatabaseConfiguration;
@@ -31,18 +38,17 @@ import savings.repository.PaybackRepository;
 import savings.repository.impl.RepositoryConfiguration;
 import savings.service.impl.ServiceConfiguration;
 
-@Ignore // FIXME
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class PaybackBookKeeperTransactionTest {
 
     @Configuration
-    @Import({ LocalDatabaseConfiguration.class, RepositoryConfiguration.class, ServiceConfiguration.class })
-    static class Config {
+    @Import({LocalDatabaseConfiguration.class, RepositoryConfiguration.class, ServiceConfiguration.class })
+    public static class Config {
 
-        @Bean
+        @Bean(name = "paybackRepositoryMock")
         public PaybackRepository paybackRepository() {
-            return mock(PaybackRepository.class);
+            return Mockito.mock(PaybackRepository.class);
         }
     }
 
@@ -50,6 +56,7 @@ public class PaybackBookKeeperTransactionTest {
     AccountRepository accountRepository;
 
     @Autowired
+    @Qualifier("paybackRepositoryMock")
     PaybackRepository paybackRepository;
 
     @Autowired
